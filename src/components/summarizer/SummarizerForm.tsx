@@ -103,8 +103,8 @@ export function SummarizerForm() {
           AI Text Summarizer
         </h1>
         <p className="max-w-2xl text-sm text-zinc-600 sm:text-base">
-          Generate clear, human-like summaries from long text in seconds with
-          a fully free local open-source model.
+          Generate clear, human-like summaries with a free API and automatic
+          fallback for reliable Vercel deployments.
         </p>
       </header>
 

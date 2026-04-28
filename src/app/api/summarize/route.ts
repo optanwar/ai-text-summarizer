@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { summarizeTextLocally } from "@/lib/local-summarizer";
+import { summarizeTextFree } from "@/lib/free-summarizer";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitizeInput } from "@/lib/sanitization";
 import { SUMMARY_TYPES, type SummarizeRequestBody } from "@/types/summarizer";
@@ -8,6 +8,7 @@ import { SUMMARY_TYPES, type SummarizeRequestBody } from "@/types/summarizer";
 const MAX_TEXT_LENGTH = 5000;
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 10;
 
 function getClientIdentifier(req: NextRequest): string {
   const forwarded = req.headers.get("x-forwarded-for");
@@ -66,7 +67,8 @@ export async function POST(req: NextRequest): Promise<Response> {
   }
 
   try {
-    const summary = await summarizeTextLocally(text, summaryType);
+    const result = await summarizeTextFree(text, summaryType);
+    const summary = result.summary.trim();
 
     if (!summary) {
       return createJsonError("No summary was generated.", 502);
@@ -74,9 +76,10 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     return NextResponse.json({
       summary,
+      source: result.source,
     });
   } catch (error) {
-    console.error("Local summarization failed.", error);
+    console.error("Summarization failed.", error);
     return createJsonError("Unable to generate summary right now.", 500);
   }
 }
